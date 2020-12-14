@@ -46,7 +46,7 @@ spec:
           claimName: mlflow-artifact
       containers:
       - name: mlflow
-        image: mboglesby/mlflow:latestt
+        image: mboglesby/mlflow:latest
         ports:
         - containerPort: 5000
         volumeMounts:
