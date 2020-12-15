@@ -107,7 +107,7 @@ spec:
         command: ["mlflow", "server"]
         args:
         - "--backend-store-uri"
-        - "mysql://root:password@$MYSQL_SERVICE_HOST:$MYSQL_SERVICE_PORT/mlflow"
+        - "mysql://root:password@$(MYSQL_SERVICE_HOST):$(MYSQL_SERVICE_PORT)/mlflow"
         - "--default-artifact-root"
         - "file:///mnt/mlflow-artifact"
         - "--host"
