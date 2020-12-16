@@ -1,5 +1,14 @@
 ---
 apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-root-auth
+type: kubernetes.io/basic-auth
+stringData:
+  username: root
+  password: password # Replace with your password
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql
@@ -36,14 +45,16 @@ spec:
         app: mysql
     spec:
       containers:
-      - image: mysql:5.6
-        name: mysql
+      - name: mysql
+        image: mysql:5.6
         env:
-          # Use secret in real usage
         - name: MYSQL_ROOT_PASSWORD
-          value: password
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root-auth
+              key: password
         - name: MYSQL_DATABASE
-          value: mlflow
+          value: mlflow # Automatically create db named 'mlflow'
         ports:
         - containerPort: 3306
           name: mysql
@@ -104,10 +115,16 @@ spec:
       containers:
       - name: mlflow
         image: mboglesby/mlflow:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-root-auth
+              key: password
         command: ["mlflow", "server"]
         args:
         - "--backend-store-uri"
-        - "mysql://root:password@$(MYSQL_SERVICE_HOST):$(MYSQL_SERVICE_PORT)/mlflow"
+        - "mysql://root:$(MYSQL_ROOT_PASSWORD)@$(MYSQL_SERVICE_HOST):$(MYSQL_SERVICE_PORT)/mlflow"
         - "--default-artifact-root"
         - "file:///mnt/mlflow-artifact"
         - "--host"
